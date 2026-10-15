@@ -4,6 +4,12 @@ Rewrite English text as Simplified Technical English (STE), based on the writing
 
 > **AI rewriting alone does not certify ASD-STE100 compliance.** This extension applies STE _principles_ through an AI model. It does not check text against the ASD-STE100 dictionary and it is not endorsed by the ASD-STE100 Maintenance Group. A qualified person must review any text where compliance or safety matters.
 
+## Screenshots
+
+| Commands in Raycast                        | Review screen                                                 | Convert Text form                            |
+| ------------------------------------------ | ------------------------------------------------------------- | -------------------------------------------- |
+| ![Commands in Raycast](media/commands.png) | ![Review screen with rewritten text](media/review-screen.png) | ![Convert Text form](media/convert-form.png) |
+
 ## Commands
 
 | Command                           | What it does                                                                                                                                    |
