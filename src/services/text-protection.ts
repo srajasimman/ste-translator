@@ -19,7 +19,7 @@ const PATTERNS: RegExp[] = [
   /\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b/g, // email addresses
   /\b(?:\d{1,3}\.){3}\d{1,3}(?:\/\d{1,2})?(?::\d{1,5})?\b/g, // IPv4 (CIDR, port)
   /(?<![\w:])(?:(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|(?:[0-9a-f]{1,4}:){1,7}:(?:[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){0,6})?|::[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){0,6})(?:\/\d{1,3})?(?![\w:])/gi, // IPv6
-  /(?:[A-Za-z]:\\|~\/|\.{1,2}\/|\/)[\w.@%+~-]+(?:[\\/][\w.@%+~-]+)*[\\/]?/g, // file paths
+  /(?<![\w/.~-])(?:[A-Za-z]:\\|~\/|\.{1,2}\/|\/)[\w.@%+~-]+(?:[\\/][\w.@%+~-]+)*[\\/]?(?<=[\w@%+~/\\-])/g, // file paths
   /(?<![\w-])--[a-z][\w-]*(?:=\S+)?/g, // CLI long flags
   /\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/g, // ENV_STYLE_KEYS
   /\b[a-z][a-z0-9_-]*(?:\.[a-z][a-z0-9_-]*){2,}\b/g, // dotted.config.keys
@@ -28,16 +28,27 @@ const PATTERNS: RegExp[] = [
 ];
 
 export function protectText(input: string): ProtectedText {
-  const tokens: string[] = [];
-  let text = input;
+  // Collect matches from every pattern against the original text, then keep the leftmost,
+  // longest non-overlapping spans. A quoted error message that contains a flag or an IP address
+  // therefore becomes one token, never a token that holds another placeholder.
+  const spans: { start: number; end: number }[] = [];
   for (const pattern of PATTERNS) {
-    text = text.replace(pattern, (match) => {
-      const id = tokens.length;
-      tokens.push(match);
-      return placeholder(id);
-    });
+    for (const match of input.matchAll(pattern)) {
+      if (match[0].length > 0) spans.push({ start: match.index, end: match.index + match[0].length });
+    }
   }
-  return { text, tokens };
+  spans.sort((a, b) => a.start - b.start || b.end - b.start - (a.end - a.start));
+
+  const tokens: string[] = [];
+  let text = "";
+  let cursor = 0;
+  for (const span of spans) {
+    if (span.start < cursor) continue;
+    text += input.slice(cursor, span.start) + placeholder(tokens.length);
+    tokens.push(input.slice(span.start, span.end));
+    cursor = span.end;
+  }
+  return { text: text + input.slice(cursor), tokens };
 }
 
 export function placeholder(id: number): string {

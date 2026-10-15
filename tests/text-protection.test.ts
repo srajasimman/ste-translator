@@ -92,3 +92,32 @@ describe("checkPlaceholders", () => {
     expect(result).toEqual({ missing: [1, 2], duplicated: [0], unknown: [5] });
   });
 });
+
+describe("prose slashes and nested matches", () => {
+  it("does not treat words joined by a slash as file paths", () => {
+    const src = "Use the SOP/Runbook and/or the input/output log. TCP/IP is fine.";
+    const { text, tokens } = protectText(src);
+    expect(tokens).toEqual([]);
+    expect(text).toBe(src);
+  });
+
+  it("still protects real paths after punctuation, spaces and assignments", () => {
+    const tokens = protectedTokens("Open (/etc/hosts), then ./run.sh or ../x/y, or set ROOT=/srv/app and ~/notes.");
+    expect(tokens).toEqual(expect.arrayContaining(["/etc/hosts", "./run.sh", "../x/y", "/srv/app", "~/notes"]));
+  });
+
+  it("protects a quoted string that contains a flag, path or IP as one token", () => {
+    const src = 'Run "kubectl drain node-1 --ignore-daemonsets" and read "/var/log/x on 10.0.0.1".';
+    const { text, tokens } = protectText(src);
+    expect(tokens).toEqual(['"kubectl drain node-1 --ignore-daemonsets"', '"/var/log/x on 10.0.0.1"']);
+    expect(text).toBe("Run [[P0]] and read [[P1]].");
+    expect(restoreText(text, tokens)).toBe(src);
+  });
+
+  it("never leaves a placeholder inside another token", () => {
+    const src = 'Check "timeout is 30 ms at 10.0.0.1:80" in `cat /etc/x --flag` and https://a.io/b?c="d".';
+    const { text, tokens } = protectText(src);
+    for (const token of tokens) expect(token).not.toMatch(/\[\[P\d+\]\]/);
+    expect(restoreText(text, tokens)).toBe(src);
+  });
+});
