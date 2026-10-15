@@ -17,21 +17,18 @@
     {
       "name": "convert-selected",
       "title": "Convert Selected Text to STE",
-      "subtitle": "STE Translator",
       "description": "Rewrite the selected text in the frontmost application as Simplified Technical English.",
       "mode": "view"
     },
     {
       "name": "convert-clipboard",
       "title": "Convert Clipboard Text to STE",
-      "subtitle": "STE Translator",
       "description": "Read the clipboard, edit it, and rewrite it as Simplified Technical English.",
       "mode": "view"
     },
     {
       "name": "convert-text",
       "title": "Convert Text to STE",
-      "subtitle": "STE Translator",
       "description": "Type or paste text and rewrite it as Simplified Technical English.",
       "mode": "view"
     }
@@ -150,28 +147,32 @@
       "title": "External Provider Base URL",
       "description": "For example https://api.openai.com/v1. Used only with the OpenAI-compatible provider.",
       "type": "textfield",
-      "required": false
+      "required": false,
+      "placeholder": "https://api.openai.com/v1"
     },
     {
       "name": "externalModel",
       "title": "External Provider Model",
       "description": "Model name sent to the external provider.",
       "type": "textfield",
-      "required": false
+      "required": false,
+      "placeholder": "gpt-4.1"
     },
     {
       "name": "externalApiKey",
       "title": "External Provider API Key",
       "description": "Stored by Raycast. Never written to disk by this extension.",
       "type": "password",
-      "required": false
+      "required": false,
+      "placeholder": "Paste API key"
     },
     {
       "name": "customInstructions",
       "title": "Custom Instructions",
       "description": "Optional extra rules, such as preferred terms. They cannot override the preservation rules.",
       "type": "textfield",
-      "required": false
+      "required": false,
+      "placeholder": "Example: Use 'shut down', not 'power off'."
     },
     {
       "name": "timeoutSeconds",
@@ -179,12 +180,13 @@
       "description": "Maximum wait for the AI provider.",
       "type": "textfield",
       "required": false,
-      "default": "60"
+      "default": "60",
+      "placeholder": "60"
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.100.0",
-    "@raycast/utils": "^1.19.0"
+    "@raycast/api": "^2.8.0",
+    "@raycast/utils": "^2.3.2"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^2.0.0",
@@ -201,6 +203,7 @@
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "publish": "npx @raycast/api@latest publish"
   }
 }
